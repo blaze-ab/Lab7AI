@@ -21,11 +21,13 @@ borders = events[num_holes:num_holes+num_borders]
 gold = events[num_holes+num_borders:num_holes+num_borders+num_gold]
 monster = events[num_holes+num_borders+num_gold:]
 
+
 def place_event(world, locations, number):
     for coord in locations:
         i, j = coord
         world[i, j] = number
     return world
+
 
 world = place_event(world, holes, 1)
 world = place_event(world, borders, 2)
@@ -52,9 +54,9 @@ def get_knowledge(world, knowledge_base, pos_i, pos_j):
         if right:
             location_knowledge = location_knowledge + knowledge_base[right] + "; "
     if location_knowledge != "":
-        return (location_knowledge)
+        return location_knowledge
     else:
-        return ("nothing around")
+        return "nothing around"
 
 
 # 1 - hole
@@ -74,10 +76,12 @@ class KB:
         return self.worldRep[pos]
 
 
-up = (-1,0)
-down = (1,0)
-left = (0,-1)
-right = (0,1)
+up = (-1, 0)
+down = (1, 0)
+left = (0, -1)
+right = (0, 1)
+
+
 class Agent:
     def __init__(self):
         self.kb = KB()
@@ -85,9 +89,9 @@ class Agent:
         world[self.pos] = '8'
 
     def move(self, delta):
-        newPos = (self.pos[0]+delta[0],self.pos[1]+delta[1])
-        if( newPos[0]<0 or newPos[0]>=world_height ): return
-        if( newPos[1]<0 or newPos[1]>=world_width ): return
+        newPos = (self.pos[0]+delta[0], self.pos[1]+delta[1])
+        if newPos[0] < 0 or newPos[0] >= world_height: return
+        if newPos[1] < 0 or newPos[1] >= world_width: return
 
         world[self.pos] = '0'
         self.pos = newPos
@@ -97,7 +101,7 @@ class Agent:
 if __name__ == "__main__":
     dude = Agent()
     print(world, "\n")
-    while( True ):
+    while True:
         dude.move(down)
         print(world, "\n")
         break
