@@ -87,8 +87,6 @@ up = (-1, 0)
 down = (1, 0)
 left = (0, -1)
 right = (0, 1)
-
-
 class Agent:
     def __init__(self):
         # originally was a standalone class, but this solution seems simpler
@@ -137,6 +135,7 @@ class Agent:
         elif self.arrows > 0:
             self.arrows -= 1
             if world[target] == 2:
+                world[target] = 0
                 return "scream"
             return "klank"
         else:
@@ -148,6 +147,7 @@ class Agent:
             for i in range(world_height):
                 target = self.posAfterMove(times(i, dir))
                 if world[target] == 2:
+                    world[target] = 0
                     return "scream"
             return "klank"
         else:
@@ -206,16 +206,13 @@ class Agent:
                 elif self.lookUp(pos) == 0:
                     self.writeDown(pos, d + 3)
                     continue
-                elif (d + 3) not in data:
-                    self.writeDown(pos, -1)
-                    continue
-                else:
-                    self.writeDown(pos, 12)
+                
         # make some conclusions if possible
         if len(self.getSafeMoves()) == 0:
             target = random.choice(self.getNearPos())
             if self.shoot(target) == "scream":
                 self.wumpus_dead = True
+                world[target] = 0
                 self.writeDown(target, -1)
 
     def isSafeMove(self, move):
@@ -254,16 +251,27 @@ class Agent:
 if __name__ == "__main__":
     dude = Agent()
     dude.writeSensorData(dude.getSensorData())
+    g.drawWorld(world, dude.wumpus_dead, dude)
     print(world)
+    if len(dude.getSafeMoves()) == 0:
+        g.pygame.time.delay(250)
+        g.drawNoWay()
     while len(dude.getSafeMoves()) > 0:
         dude.writeSensorData(dude.getSensorData())
-        dude.move(dude.chooseMove())
+        if dude.move(dude.chooseMove()) == "game over":
+            g.drawGameOver()
+            break
         dude.writeSensorData(dude.getSensorData())
         g.drawWorld(world, dude.wumpus_dead, dude)
         print(world)
+        if dude.points < -20:
+            g.drawNoWay()
+            break
         if dude.shouldDig():
             dude.digGold()
             print(world)
             print(dude.points)
+            g.pygame.time.delay(60)
             g.drawWinner()
             break
+    
