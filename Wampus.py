@@ -253,7 +253,9 @@ if __name__ == "__main__":
     dude.writeSensorData(dude.getSensorData())
     g.drawWorld(world, dude.wumpus_dead, dude)
     print(world)
-
+    if len(dude.getSafeMoves()) == 0:
+        g.pygame.time.delay(250)
+        g.drawNoWay()
     while len(dude.getSafeMoves()) > 0:
         dude.writeSensorData(dude.getSensorData())
         if dude.move(dude.chooseMove()) == "game over":
@@ -272,3 +274,4 @@ if __name__ == "__main__":
             g.pygame.time.delay(60)
             g.drawWinner()
             break
+    
