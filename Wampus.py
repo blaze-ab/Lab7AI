@@ -63,7 +63,7 @@ world = place_event(world, gold, 3)
 # 4 - may be a hole
 # 2 - monster
 # 5 - may be a monster
-# 3 - coins
+# 3 - gold
 # 12 - both dangers
 # 8 - agent
 def validPos(world, pos):
@@ -87,8 +87,7 @@ class Agent:
         self.pos = agent_start_pos
         self.arrows = 1
         self.points = 0
-
-        world[self.pos] = '8'
+        
         self.writeDown(self.pos, -1)
         self.visited[self.pos] = 1
 
@@ -106,9 +105,7 @@ class Agent:
         if not validPos(world, newPos) : return "bump"
         self.points -= 1
         if self.dangersCheck() <= 0:
-            world[self.pos] = '0'
             self.pos = newPos
-            world[self.pos] = '8'
             self.writeDown(self.pos, -1)
             self.visited[self.pos] += 1
         else:
