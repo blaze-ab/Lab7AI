@@ -144,7 +144,7 @@ def drawGameOver():
         screen.fill((0, 0, 10))
 
         font = pygame.font.Font('freesansbold.ttf', 32)
-        text = font.render('Game over', True, (163, 0, 101), (0, 0, 10))
+        text = font.render('Game over.', True, (163, 0, 101), (0, 0, 10))
         textRect = text.get_rect()
         textRect.center = (SCREEN_SIZE // 2, SCREEN_SIZE // 2)
         screen.blit(text, textRect)
@@ -161,7 +161,25 @@ def drawWinner():
 
         screen.fill((0, 0, 10))
         font = pygame.font.Font('freesansbold.ttf', 32)
-        text = font.render('He found the diamonds and was happy ever after', True, (163, 0, 101), (0, 0, 10))
+        text = font.render('He found the diamonds and was happy ever after.', True, (163, 0, 101), (0, 0, 10))
+        textRect = text.get_rect()
+        textRect.center = (SCREEN_SIZE // 2, SCREEN_SIZE // 2)
+        screen.blit(text, textRect)
+
+        pygame.display.flip()
+    pygame.quit()
+
+
+def drawNoWay():
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        screen.fill((0, 0, 10))
+        font = pygame.font.Font('freesansbold.ttf', 32)
+        text = font.render('He is not brave enough to go further.', True, (163, 0, 101), (0, 0, 10))
         textRect = text.get_rect()
         textRect.center = (SCREEN_SIZE // 2, SCREEN_SIZE // 2)
         screen.blit(text, textRect)
