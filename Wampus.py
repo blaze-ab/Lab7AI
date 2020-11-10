@@ -2,6 +2,7 @@ import numpy as np
 from itertools import product
 import random
 from random import sample
+import GUI as g
 
 # -- CONFIG --
 world_width = 4
@@ -241,4 +242,5 @@ if __name__ == "__main__":
     while len(dude.getSafeMoves()) > 0:
         dude.writeSensorData(dude.getSensorData())
         dude.move(dude.chooseMove())
+        g.drawWorld(world, dude.wumpus_dead)
         print(world)
