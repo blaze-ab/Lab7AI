@@ -9,16 +9,17 @@ world_height = 4
 num_holes = 2
 num_gold = 1
 num_monster = 1
-agent_start_pos = (0,0)
+agent_start_pos = (0, 0)
 # ------------
 knowledge_base = {1: "breeze", 2: "bang", 3: "shine", 4: "growl"}
 world = np.zeros((world_height, world_width), dtype=np.int8)
-events = sample(list(product(range(world_height), range(world_width))), k=num_holes + num_gold+num_monster)
+events = sample(list(product(range(world_height), range(world_width))), k=num_holes + num_gold + num_monster)
 
 holes = events[:num_holes]
 borders = events[num_holes:num_holes]
-gold = events[num_holes:num_holes+num_gold]
-monster = events[num_holes+num_gold:]
+gold = events[num_holes:num_holes + num_gold]
+monster = events[num_holes + num_gold:]
+
 
 def place_event(world, locations, number):
     for coord in locations:
@@ -26,10 +27,10 @@ def place_event(world, locations, number):
         world[i, j] = number
     return world
 
+
 world = place_event(world, holes, 1)
 world = place_event(world, monster, 2)
 world = place_event(world, gold, 3)
-
 
 '''def get_knowledge(world, knowledge_base, pos_i, pos_j):
     location_knowledge = ""
@@ -64,18 +65,22 @@ world = place_event(world, gold, 3)
 # 12 - both dangers
 # 8 - agent
 def validPos(world, pos):
-    return pos[1]>=0 and pos[1] < world_width and pos[0]>=0 and pos[0] < world_height
+    return 0 <= pos[1] < world_width and 0 <= pos[0] < world_height
+
 
 def times(k, direction):
-    return (k*direction[0], k*direction[1])
+    return k * direction[0], k * direction[1]
 
-up = (-1,0)
-down = (1,0)
-left = (0,-1)
-right = (0,1)
+
+up = (-1, 0)
+down = (1, 0)
+left = (0, -1)
+right = (0, 1)
+
+
 class Agent:
     def __init__(self):
-        #originally was a standalone class, but this solution seems simpler
+        # originally was a standalone class, but this solution seems simpler
         self.kb = np.zeros((world_height, world_width), dtype=np.int8)
         self.visited = np.zeros((world_height, world_width), dtype=np.int8)
         self.wumpus_dead = False
@@ -88,18 +93,17 @@ class Agent:
         self.writeDown(self.pos, -1)
         self.visited[self.pos] = 1
 
-    #tell
+    # tell
     def writeDown(self, pos, val):
         self.kb[pos] = val
-    
-    #ask
+
+    # ask
     def lookUp(self, pos):
         return self.kb[pos]
 
-
     def move(self, delta):
-        newPos = (self.pos[0]+delta[0],self.pos[1]+delta[1])
-        if not validPos(world, newPos) : return "bump"
+        newPos = (self.pos[0] + delta[0], self.pos[1] + delta[1])
+        if not validPos(world, newPos): return "bump"
         self.points -= 1
         if self.dangersCheck() <= 0:
             world[self.pos] = '0'
@@ -110,7 +114,6 @@ class Agent:
         else:
             return "game over"
 
-
     def shoot(self, target):
         if target == self.pos:
             print("i feel you")
@@ -119,18 +122,19 @@ class Agent:
             if world[target] == 2:
                 return "scream"
             return "klank"
-        else :return "no arrows"
-    
+        else:
+            return "no arrows"
+
     def shootDir(self, dir):
-        elif self.arrows > 0:
+        if self.arrows > 0:
             self.arrows -= 1
             for i in range(world_height):
                 target = self.posAfterMove(times(i, dir))
                 if world[target] == 2:
                     return "scream"
             return "klank"
-        else :return "no arrows"
-
+        else:
+            return "no arrows"
 
     def dangersCheck(self):
         if world[self.pos] == 1:
@@ -140,12 +144,11 @@ class Agent:
             return 1
         return -1
 
-
     def getNearPos(self):
-        up_pos = (self.pos[0]+up[0], self.pos[1]+up[1])
-        down_pos = (self.pos[0]+down[0], self.pos[1]+down[1])
-        left_pos = (self.pos[0]+left[0], self.pos[1]+left[1])
-        right_pos = (self.pos[0]+right[0],self.pos[1]+right[1])
+        up_pos = (self.pos[0] + up[0], self.pos[1] + up[1])
+        down_pos = (self.pos[0] + down[0], self.pos[1] + down[1])
+        left_pos = (self.pos[0] + left[0], self.pos[1] + left[1])
+        right_pos = (self.pos[0] + right[0], self.pos[1] + right[1])
         vals = list()
         if validPos(world, up_pos):
             vals.append(up_pos)
@@ -157,7 +160,6 @@ class Agent:
             vals.append(right_pos)
         return vals
 
-
     def getSensorData(self):
         near_pos = self.getNearPos()
         sensor_vals = list()
@@ -168,14 +170,13 @@ class Agent:
         if world[self.pos] == 3:
             sensor_vals.append(3)
         return sensor_vals
-        
 
     def writeSensorData(self, data):
         near_pos = self.getNearPos()
         if len(data) < 1:
             for pos in near_pos:
                 self.writeDown(pos, -1)
-        
+
         for d in data:
             if d == 2 and self.wumpus_dead:
                 continue
@@ -183,38 +184,29 @@ class Agent:
                 self.writeDown(self.pos, d)
                 continue
             for pos in near_pos:
-                if self.lookUp(pos) < 0 or self.lookUp(pos) == d+3:
+                if self.lookUp(pos) < 0 or self.lookUp(pos) == d + 3:
                     continue
                 elif self.lookUp(pos) == 0:
-                    self.writeDown(pos, d+3)
+                    self.writeDown(pos, d + 3)
                     continue
-                elif (d+3) not in data:
+                elif (d + 3) not in data:
                     self.writeDown(pos, -1)
                     continue
                 else:
                     self.writeDown(pos, 12)
-        #make some conclusions if possible
+        # make some conclusions if possible
         if len(self.getSafeMoves()) == 0:
             target = random.choice(self.getNearPos())
             if self.shoot(target) == "scream":
-                self.wumpus_dead == True
+                self.wumpus_dead = True
                 self.writeDown(target, -1)
-        elif len(self.getSafeMoves()) == 3:
-
-        if 2 in data and len(self.getNearPos()) - len(self.getSafeMoves()) == 1:
-            wumpus_dir = None
-            #for dir in
-            self.shoot(up)
-
-
 
     def isSafeMove(self, move):
-        new_pos = self.pos[0]+move[0], self.pos[1]+move[1]
+        new_pos = self.pos[0] + move[0], self.pos[1] + move[1]
         if validPos(world, new_pos):
-            if self.lookUp(new_pos) <0 or self.lookUp(new_pos) == 3:
+            if self.lookUp(new_pos) < 0 or self.lookUp(new_pos) == 3:
                 return True
         return False
-
 
     def getSafeMoves(self):
         safe_moves = list()
@@ -228,9 +220,8 @@ class Agent:
             safe_moves.append(right)
         return safe_moves
 
-    
     def posAfterMove(self, move):
-        return (self.pos[0]+move[0], self.pos[1]+move[1])
+        return self.pos[0] + move[0], self.pos[1] + move[1]
 
     def chooseMove(self):
         safe_moves = self.getSafeMoves()
@@ -246,9 +237,8 @@ class Agent:
 if __name__ == "__main__":
     dude = Agent()
     dude.writeSensorData(dude.getSensorData())
-    print(world) 
-    while len(dude.getSafeMoves()) > 0 :
+    print(world)
+    while len(dude.getSafeMoves()) > 0:
         dude.writeSensorData(dude.getSensorData())
         dude.move(dude.chooseMove())
-        print(world) 
-
+        print(world)
