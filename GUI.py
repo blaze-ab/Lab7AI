@@ -25,6 +25,7 @@ WUMPUS_SIZE = 170
 AGENT = ()
 AGENT_SIZE = 170
 
+dude = w.Agent()
 MAP_MATRIX = w.world
 
 creeper_dead = False
@@ -35,13 +36,11 @@ def initMap():
         for j in range(SQUARES_NUM):
             if MAP_MATRIX[i, j] == 1:
                 HOLES.append((i, j))
-            if MAP_MATRIX[i, j] == 2:
-                BORDERS.append((i, j))
             if MAP_MATRIX[i, j] == 3:
                 global GOLD
                 GOLD = (i, j)
                 print(GOLD[0])
-            if MAP_MATRIX[i, j] == 4:
+            if MAP_MATRIX[i, j] == 2:
                 global WUMPUS
                 WUMPUS = (i, j)
             if MAP_MATRIX[i, j] == 8:
@@ -135,8 +134,8 @@ if __name__ == "__main__":
                                              + (SQUARES_WIDTH - WUMPUS_SIZE) / 2)))
 
         # agent(Steve)
-        # screen.blit(scaled_steve, (int(AGENT[1] * SQUARES_WIDTH + WALL_WIDTH + (SQUARES_WIDTH - AGENT_SIZE) / 2),
-        #                           int(AGENT[0] * SQUARES_WIDTH + WALL_WIDTH + (SQUARES_WIDTH - AGENT_SIZE) / 2)))
+        screen.blit(scaled_steve, (int(AGENT[1] * SQUARES_WIDTH + WALL_WIDTH + (SQUARES_WIDTH - AGENT_SIZE) / 2),
+                                   int(AGENT[0] * SQUARES_WIDTH + WALL_WIDTH + (SQUARES_WIDTH - AGENT_SIZE) / 2)))
 
         pygame.display.flip()
 
