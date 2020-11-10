@@ -27,6 +27,8 @@ AGENT_SIZE = 170
 
 
 def initMap(world):
+    global AGENT
+    AGENT = w.dude.pos
     for i in range(SQUARES_NUM):
         for j in range(SQUARES_NUM):
             if world[i, j] == 1:
@@ -37,9 +39,6 @@ def initMap(world):
             if world[i, j] == 2:
                 global WUMPUS
                 WUMPUS = (i, j)
-            if world[i, j] == 8:
-                global AGENT
-                AGENT = (i, j)
 
 
 def drawWorld(outer_world, creeper_dead):
