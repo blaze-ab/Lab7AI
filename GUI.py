@@ -25,6 +25,33 @@ WUMPUS_SIZE = 170
 AGENT = ()
 AGENT_SIZE = 170
 
+screen = pygame.display.set_mode([SCREEN_SIZE + 2 * WALL_WIDTH, SCREEN_SIZE + 2 * WALL_WIDTH])
+# coin
+coins = pygame.image.load('diamond_ore.png').convert()
+coins.set_colorkey((255, 255, 255))
+scaled_coin = pygame.transform.scale(coins, (GOLD_SIZE, GOLD_SIZE))
+colored_scaled_coin = scaled_coin.set_colorkey((255, 255, 255))
+
+# hole
+hole = pygame.image.load('hole2.png').convert()
+hole.set_colorkey((255, 255, 255))
+scaled_hole = pygame.transform.scale(hole, (HOLE_SIZE, HOLE_SIZE))
+
+# creeper
+creeper = pygame.image.load('creeper.jpg').convert()
+creeper.set_colorkey((255, 255, 255))
+scaled_creeper = pygame.transform.scale(creeper, (WUMPUS_SIZE, WUMPUS_SIZE))
+
+# dead creeper
+dead_creeper = pygame.image.load('gunpowder.png').convert()
+dead_creeper.set_colorkey((255, 255, 255))
+scaled_dead_creeper = pygame.transform.scale(dead_creeper, (WUMPUS_SIZE, WUMPUS_SIZE))
+
+# agent(Steve)
+steve = pygame.image.load('steeve.png').convert()
+steve.set_colorkey((255, 255, 255))
+scaled_steve = pygame.transform.scale(steve, (WUMPUS_SIZE, WUMPUS_SIZE))
+
 
 def initMap(world, dude):
     global AGENT
@@ -45,34 +72,8 @@ def drawWorld(outer_world, creeper_dead, dude):
 
     initMap(outer_world, dude)
     # Set up the drawing window
-    screen = pygame.display.set_mode([SCREEN_SIZE + 2 * WALL_WIDTH, SCREEN_SIZE + 2 * WALL_WIDTH])
+
     running = True
-
-    # coin
-    coins = pygame.image.load('diamond_ore.png').convert()
-    coins.set_colorkey((255, 255, 255))
-    scaled_coin = pygame.transform.scale(coins, (GOLD_SIZE, GOLD_SIZE))
-    colored_scaled_coin = scaled_coin.set_colorkey((255, 255, 255))
-
-    # hole
-    hole = pygame.image.load('hole2.png').convert()
-    hole.set_colorkey((255, 255, 255))
-    scaled_hole = pygame.transform.scale(hole, (HOLE_SIZE, HOLE_SIZE))
-
-    # creeper
-    creeper = pygame.image.load('creeper.jpg').convert()
-    creeper.set_colorkey((255, 255, 255))
-    scaled_creeper = pygame.transform.scale(creeper, (WUMPUS_SIZE, WUMPUS_SIZE))
-
-    # dead creeper
-    dead_creeper = pygame.image.load('gunpowder.png').convert()
-    dead_creeper.set_colorkey((255, 255, 255))
-    scaled_dead_creeper = pygame.transform.scale(dead_creeper, (WUMPUS_SIZE, WUMPUS_SIZE))
-
-    # agent(Steve)
-    steve = pygame.image.load('steeve.png').convert()
-    steve.set_colorkey((255, 255, 255))
-    scaled_steve = pygame.transform.scale(steve, (WUMPUS_SIZE, WUMPUS_SIZE))
 
     if running:
 
@@ -132,6 +133,39 @@ def drawWorld(outer_world, creeper_dead, dude):
         pygame.time.delay(500)
         pygame.display.flip()
 
-    # Done! Time to quit.
-    # pygame.quit()
+
+def drawGameOver():
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        screen.fill((0, 0, 10))
+
+        font = pygame.font.Font('freesansbold.ttf', 32)
+        text = font.render('Game over', True, (163, 0, 101), (0, 0, 10))
+        textRect = text.get_rect()
+        textRect.center = (SCREEN_SIZE // 2, SCREEN_SIZE // 2)
+        screen.blit(text, textRect)
+        pygame.display.flip()
+    pygame.quit()
+
+
+def drawWinner():
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        screen.fill((0, 0, 10))
+        font = pygame.font.Font('freesansbold.ttf', 32)
+        text = font.render('He found the diamonds and was happy ever after', True, (163, 0, 101), (0, 0, 10))
+        textRect = text.get_rect()
+        textRect.center = (SCREEN_SIZE // 2, SCREEN_SIZE // 2)
+        screen.blit(text, textRect)
+
+        pygame.display.flip()
+    pygame.quit()
 

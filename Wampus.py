@@ -16,11 +16,15 @@ knowledge_base = {1: "breeze", 2: "bang", 3: "shine", 4: "growl"}
 world = np.zeros((world_height, world_width), dtype=np.int8)
 
 events = []
-for i in range(num_holes + num_gold + num_monster):
+number_of_events = num_holes + num_gold + num_monster
+for i in range(number_of_events):
     x = random.randint(0, world_height - 1)
     y = random.randint(0, world_height - 1)
     if x == 0:
         y = random.randint(1, world_height - 1)
+    if (x, y) in events:
+        number_of_events += 1
+        continue
     events.append((x, y))
 
 holes = events[:num_holes]
@@ -261,4 +265,5 @@ if __name__ == "__main__":
             dude.digGold()
             print(world)
             print(dude.points)
+            g.drawWinner()
             break
