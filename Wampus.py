@@ -255,7 +255,7 @@ if __name__ == "__main__":
         dude.writeSensorData(dude.getSensorData())
         dude.move(dude.chooseMove())
         dude.writeSensorData(dude.getSensorData())
-        g.drawWorld(world, dude.wumpus_dead)
+        g.drawWorld(world, dude.wumpus_dead, dude)
         print(world)
         if dude.shouldDig():
             dude.digGold()

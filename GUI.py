@@ -26,9 +26,9 @@ AGENT = ()
 AGENT_SIZE = 170
 
 
-def initMap(world):
+def initMap(world, dude):
     global AGENT
-    AGENT = w.dude.pos
+    AGENT = dude.pos
     for i in range(SQUARES_NUM):
         for j in range(SQUARES_NUM):
             if world[i, j] == 1:
@@ -41,9 +41,9 @@ def initMap(world):
                 WUMPUS = (i, j)
 
 
-def drawWorld(outer_world, creeper_dead):
+def drawWorld(outer_world, creeper_dead, dude):
 
-    initMap(outer_world)
+    initMap(outer_world, dude)
     # Set up the drawing window
     screen = pygame.display.set_mode([SCREEN_SIZE + 2 * WALL_WIDTH, SCREEN_SIZE + 2 * WALL_WIDTH])
     running = True
