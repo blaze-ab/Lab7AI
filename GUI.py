@@ -34,7 +34,6 @@ def initMap(world):
             if world[i, j] == 3:
                 global GOLD
                 GOLD = (i, j)
-                print(GOLD[0])
             if world[i, j] == 2:
                 global WUMPUS
                 WUMPUS = (i, j)
@@ -76,8 +75,6 @@ def drawWorld(outer_world, creeper_dead):
     steve.set_colorkey((255, 255, 255))
     scaled_steve = pygame.transform.scale(steve, (WUMPUS_SIZE, WUMPUS_SIZE))
 
-    creeper_x = int(WUMPUS[1] * SQUARES_WIDTH + WALL_WIDTH + (SQUARES_WIDTH - WUMPUS_SIZE) / 2)
-
     if running:
 
         # Did the user click the window close button?
@@ -117,9 +114,10 @@ def drawWorld(outer_world, creeper_dead):
 
         # creeper
         if not creeper_dead:
-            screen.blit(scaled_creeper, (creeper_x,
-                                         int(WUMPUS[0] * SQUARES_WIDTH
-                                             + WALL_WIDTH + (SQUARES_WIDTH - WUMPUS_SIZE) / 2)))
+            screen.blit(scaled_creeper, (int(WUMPUS[1] * SQUARES_WIDTH + WALL_WIDTH
+                                             + (SQUARES_WIDTH - WUMPUS_SIZE) / 2),
+                                         int(WUMPUS[0] * SQUARES_WIDTH + WALL_WIDTH
+                                             + (SQUARES_WIDTH - WUMPUS_SIZE) / 2)))
 
         # dead creeper
         if creeper_dead:

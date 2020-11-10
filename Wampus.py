@@ -14,10 +14,16 @@ agent_start_pos = (0, 0)
 # ------------
 knowledge_base = {1: "breeze", 2: "bang", 3: "shine", 4: "growl"}
 world = np.zeros((world_height, world_width), dtype=np.int8)
-events = sample(list(product(range(world_height), range(world_width))), k=num_holes + num_gold + num_monster)
+
+events = []
+for i in range(num_holes + num_gold + num_monster):
+    x = random.randint(0, world_height-1)
+    y = random.randint(0, world_height-1)
+    if x == 0:
+        y = random.randint(1, world_height-1)
+    events.append((x, y))
 
 holes = events[:num_holes]
-borders = events[num_holes:num_holes]
 gold = events[num_holes:num_holes + num_gold]
 monster = events[num_holes + num_gold:]
 
