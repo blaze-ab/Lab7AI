@@ -186,4 +186,3 @@ def drawNoWay():
 
         pygame.display.flip()
     pygame.quit()
-
