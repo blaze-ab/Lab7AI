@@ -1,90 +1,144 @@
 import pygame
 import random
 import os
-
-from pygame.locals import (
-    K_UP,
-    K_DOWN,
-    K_LEFT,
-    K_RIGHT,
-    K_ESCAPE,
-    KEYDOWN,
-    QUIT,
-)
+import Wampus as w
 
 pygame.init()
 
 WALL_WIDTH = 20
-SCREEN_SIZE = 780+WALL_WIDTH
+SCREEN_SIZE = 800
 
-SQUARES_NUM = 4
-SQUARES_WIDTH = SCREEN_SIZE/SQUARES_NUM
+SQUARES_NUM = w.world_width
+SQUARES_WIDTH = int(SCREEN_SIZE/SQUARES_NUM)
 
-FLOOR_HEIGHT = 50
-GOLD_RADIUS = 50
-HOLE_RADIUS = 90
+HOLES = []
+HOLE_SIZE = 170
 
-current_path = os.path.dirname(__file__)
+BORDERS = []
 
-# Set up the drawing window
-screen = pygame.display.set_mode([SCREEN_SIZE, SCREEN_SIZE])
-running = True
+GOLD = ()
+GOLD_SIZE = 170
 
-gold_i = random.randint(0, SQUARES_NUM-1)
-gold_j = random.randint(0, SQUARES_NUM-1)
+WUMPUS = ()
+WUMPUS_SIZE = 170
 
-while running:
+AGENT = ()
+AGENT_SIZE = 170
 
-    # Did the user click the window close button?
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+MAP_MATRIX = w.world
 
-    # Fill the background with white
-    screen.fill((0, 0, 10))
+creeper_dead = False
 
-    # walls
-    pygame.draw.rect(screen, (89, 36, 36), (0, 0, SCREEN_SIZE, WALL_WIDTH))
-    pygame.draw.rect(screen, (89, 36, 36), (0, 0, WALL_WIDTH, SCREEN_SIZE))
-    pygame.draw.rect(screen, (89, 36, 36), (SCREEN_SIZE-WALL_WIDTH, 0, SCREEN_SIZE, SCREEN_SIZE))
-    pygame.draw.rect(screen, (89, 36, 36), (0, SCREEN_SIZE-WALL_WIDTH, SCREEN_SIZE, SCREEN_SIZE))
 
-    # lines vertical
-    pygame.draw.line(screen, (89, 36, 36), (SQUARES_WIDTH, 0), (SQUARES_WIDTH, SCREEN_SIZE))
-    pygame.draw.line(screen, (89, 36, 36), (2*SQUARES_WIDTH, 0), (2*SQUARES_WIDTH, SCREEN_SIZE))
-    pygame.draw.line(screen, (89, 36, 36), (3*SQUARES_WIDTH, 0), (3*SQUARES_WIDTH, SCREEN_SIZE))
+def initMap():
+    for i in range(SQUARES_NUM):
+        for j in range(SQUARES_NUM):
+            if MAP_MATRIX[i, j] == 1:
+                HOLES.append((i, j))
+            if MAP_MATRIX[i, j] == 2:
+                BORDERS.append((i, j))
+            if MAP_MATRIX[i, j] == 3:
+                global GOLD
+                GOLD = (i, j)
+                print(GOLD[0])
+            if MAP_MATRIX[i, j] == 4:
+                global WUMPUS
+                WUMPUS = (i, j)
+            if MAP_MATRIX[i, j] == 8:
+                global AGENT
+                AGENT = (i, j)
 
-    # lines horizontal
-    pygame.draw.line(screen, (89, 36, 36), (0, SQUARES_WIDTH), (SCREEN_SIZE, SQUARES_WIDTH))
-    pygame.draw.line(screen, (89, 36, 36), (0, 2*SQUARES_WIDTH), (SCREEN_SIZE, 2*SQUARES_WIDTH))
-    pygame.draw.line(screen, (89, 36, 36), (0, 3*SQUARES_WIDTH), (SCREEN_SIZE, 3*SQUARES_WIDTH))
 
-    # pygame.draw.rect(screen, (89, 36, 36), (SCREEN_WIDTH-WALL_WIDTH, 0, SCREEN_WIDTH, SCREEN_HEIGHT - FLOOR_HEIGHT))
+if __name__ == "__main__":
+    initMap()
+    print(MAP_MATRIX)
+    # Set up the drawing window
+    screen = pygame.display.set_mode([SCREEN_SIZE + 2*WALL_WIDTH, SCREEN_SIZE + 2*WALL_WIDTH])
+    running = True
 
-    # gold
-    pygame.draw.circle(screen, (200, 130, 0), (int(gold_i*SQUARES_WIDTH+GOLD_RADIUS*2),
-                                               int(gold_j*SQUARES_WIDTH+GOLD_RADIUS*2)), GOLD_RADIUS)
+    # coin
+    coins = pygame.image.load('gold_ore.png').convert()
+    coins.set_colorkey((255, 255, 255))
+    scaled_coin = pygame.transform.scale(coins, (GOLD_SIZE, GOLD_SIZE))
+    colored_scaled_coin = scaled_coin.set_colorkey((255, 255, 255))
 
     # hole
-    pygame.draw.circle(screen, (255, 255, 255), (int(2 * SQUARES_WIDTH + HOLE_RADIUS +
-                                                     (SQUARES_WIDTH - 2*HOLE_RADIUS)/2),
-                                                 int(2 * SQUARES_WIDTH + HOLE_RADIUS +
-                                                     (SQUARES_WIDTH - 2*HOLE_RADIUS)/2)), HOLE_RADIUS)
+    hole = pygame.image.load('hole2.png').convert()
+    hole.set_colorkey((255, 255, 255))
+    scaled_hole = pygame.transform.scale(hole, (HOLE_SIZE, HOLE_SIZE))
 
+    # creeper
+    creeper = pygame.image.load('creeper.jpg').convert()
+    creeper.set_colorkey((255, 255, 255))
+    scaled_creeper = pygame.transform.scale(creeper, (WUMPUS_SIZE, WUMPUS_SIZE))
 
-    # Draw a solid blue circle in the center
-    # pygame.draw.circle(screen, (0, 0, 255), (250, 250), 75)
-    # pygame.draw.rect(screen, (0, 255, 0), (0, SCREEN_HEIGHT-FLOOR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT))
+    # dead creeper
+    dead_creeper = pygame.image.load('gunpowder.png').convert()
+    dead_creeper.set_colorkey((255, 255, 255))
+    scaled_dead_creeper = pygame.transform.scale(dead_creeper, (WUMPUS_SIZE, WUMPUS_SIZE))
 
-    # coins = pygame.image.load(os.path.join(current_path, 'coin.bpm'))
-    # coins.set_colorkey((255, 255, 255))
+    # agent(Steve)
+    steve = pygame.image.load('steeve.png').convert()
+    steve.set_colorkey((255, 255, 255))
+    scaled_steve = pygame.transform.scale(steve, (WUMPUS_SIZE, WUMPUS_SIZE))
 
-    '''
-    for i in range(0, SCREEN_WIDTH, int(HOLE_WIDTH)):
-        if i == 0 or i == SCREEN_WIDTH-HOLE_WIDTH or bool(random.getrandbits(1)):
-            pygame.draw.rect(screen, (0, 255, 0), (i, SCREEN_HEIGHT - FLOOR_HEIGHT, i+int(HOLE_WIDTH), SCREEN_HEIGHT))
-    '''
-    pygame.display.flip()
+    creeper_x = int(WUMPUS[1] * SQUARES_WIDTH + WALL_WIDTH + (SQUARES_WIDTH - WUMPUS_SIZE) / 2)
 
-# Done! Time to quit.
-pygame.quit()
+    while running:
+
+        # Did the user click the window close button?
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        # Fill the background with white
+        screen.fill((0, 0, 10))
+
+        # walls
+        pygame.draw.rect(screen, (89, 36, 36), (0, 0, SCREEN_SIZE + WALL_WIDTH, WALL_WIDTH))
+        pygame.draw.rect(screen, (89, 36, 36), (0, 0, WALL_WIDTH, SCREEN_SIZE + WALL_WIDTH))
+        pygame.draw.rect(screen, (89, 36, 36), (SCREEN_SIZE + WALL_WIDTH, 0, SCREEN_SIZE + WALL_WIDTH,
+                                                SCREEN_SIZE + 2*WALL_WIDTH))
+        pygame.draw.rect(screen, (89, 36, 36), (0, SCREEN_SIZE + WALL_WIDTH, SCREEN_SIZE + WALL_WIDTH,
+                                                SCREEN_SIZE + 2*WALL_WIDTH))
+
+        # lines vertical
+        for i in range(SQUARES_NUM):
+            pygame.draw.line(screen, (89, 36, 36), (WALL_WIDTH + (i+1)*SQUARES_WIDTH, 0),
+                             (WALL_WIDTH + (i+1)*SQUARES_WIDTH, SCREEN_SIZE+WALL_WIDTH))
+
+        # lines horizontal
+        for i in range(SQUARES_NUM):
+            pygame.draw.line(screen, (89, 36, 36), (0, WALL_WIDTH + (i+1)*SQUARES_WIDTH),
+                             (SCREEN_SIZE+WALL_WIDTH, WALL_WIDTH + (i+1)*SQUARES_WIDTH))
+
+        # gold
+        screen.blit(scaled_coin, (int(GOLD[1]*SQUARES_WIDTH + WALL_WIDTH + (SQUARES_WIDTH-GOLD_SIZE)/2),
+                                  int(GOLD[0]*SQUARES_WIDTH + WALL_WIDTH + (SQUARES_WIDTH-GOLD_SIZE)/2)))
+
+        # holes
+        for i in HOLES:
+            screen.blit(scaled_hole, (int(i[1] * SQUARES_WIDTH + WALL_WIDTH + (SQUARES_WIDTH - HOLE_SIZE) / 2),
+                                      int(i[0] * SQUARES_WIDTH + WALL_WIDTH + (SQUARES_WIDTH - HOLE_SIZE) / 2)))
+
+        # creeper
+        if not creeper_dead:
+            screen.blit(scaled_creeper, (creeper_x,
+                                         int(WUMPUS[0] * SQUARES_WIDTH
+                                             + WALL_WIDTH + (SQUARES_WIDTH - WUMPUS_SIZE) / 2)))
+
+        # dead creeper
+        if creeper_dead:
+            screen.blit(scaled_dead_creeper, (int(WUMPUS[1] * SQUARES_WIDTH + WALL_WIDTH +
+                                             (SQUARES_WIDTH - WUMPUS_SIZE) / 2),
+                                         int(WUMPUS[0] * SQUARES_WIDTH + WALL_WIDTH
+                                             + (SQUARES_WIDTH - WUMPUS_SIZE) / 2)))
+
+        # agent(Steve)
+        # screen.blit(scaled_steve, (int(AGENT[1] * SQUARES_WIDTH + WALL_WIDTH + (SQUARES_WIDTH - AGENT_SIZE) / 2),
+        #                           int(AGENT[0] * SQUARES_WIDTH + WALL_WIDTH + (SQUARES_WIDTH - AGENT_SIZE) / 2)))
+
+        pygame.display.flip()
+
+    # Done! Time to quit.
+    pygame.quit()
