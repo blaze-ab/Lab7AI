@@ -17,10 +17,10 @@ world = np.zeros((world_height, world_width), dtype=np.int8)
 
 events = []
 for i in range(num_holes + num_gold + num_monster):
-    x = random.randint(0, world_height-1)
-    y = random.randint(0, world_height-1)
+    x = random.randint(0, world_height - 1)
+    y = random.randint(0, world_height - 1)
     if x == 0:
-        y = random.randint(1, world_height-1)
+        y = random.randint(1, world_height - 1)
     events.append((x, y))
 
 holes = events[:num_holes]
@@ -68,7 +68,7 @@ world = place_event(world, gold, 3)
 # 4 - may be a hole
 # 2 - monster
 # 5 - may be a monster
-# 3 - coins
+# 3 - gold
 # 12 - both dangers
 # 8 - agent
 def validPos(world, pos):
@@ -96,7 +96,6 @@ class Agent:
         self.arrows = 1
         self.points = 0
 
-        world[self.pos] = '8'
         self.writeDown(self.pos, -1)
         self.visited[self.pos] = 1
 
@@ -113,13 +112,20 @@ class Agent:
         if not validPos(world, newPos): return "bump"
         self.points -= 1
         if self.dangersCheck() <= 0:
-            world[self.pos] = '0'
             self.pos = newPos
-            world[self.pos] = '8'
             self.writeDown(self.pos, -1)
             self.visited[self.pos] += 1
         else:
             return "game over"
+
+    def shouldDig(self):
+        return self.lookUp(self.pos) == 3
+
+    def digGold(self):
+        if world[self.pos] == 3:
+            self.points += 1000
+            world[self.pos] = 0
+        return
 
     def shoot(self, target):
         if target == self.pos:
@@ -248,5 +254,11 @@ if __name__ == "__main__":
     while len(dude.getSafeMoves()) > 0:
         dude.writeSensorData(dude.getSensorData())
         dude.move(dude.chooseMove())
+        dude.writeSensorData(dude.getSensorData())
         g.drawWorld(world, dude.wumpus_dead)
         print(world)
+        if dude.shouldDig():
+            dude.digGold()
+            print(world)
+            print(dude.points)
+            break
