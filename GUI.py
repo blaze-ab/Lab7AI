@@ -56,7 +56,7 @@ if __name__ == "__main__":
     running = True
 
     # coin
-    coins = pygame.image.load('gold_ore.png').convert()
+    coins = pygame.image.load('diamond_ore.png').convert()
     coins.set_colorkey((255, 255, 255))
     scaled_coin = pygame.transform.scale(coins, (GOLD_SIZE, GOLD_SIZE))
     colored_scaled_coin = scaled_coin.set_colorkey((255, 255, 255))
