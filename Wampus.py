@@ -22,12 +22,12 @@ for i in range(number_of_events):
     y = random.randint(0, world_height - 1)
     if x == 0:
         y = random.randint(1, world_height - 1)
-    while (x,y) in events:
+    while (x, y) in events:
         x = random.randint(0, world_height - 1)
         y = random.randint(0, world_height - 1)
         if x == 0:
             y = random.randint(1, world_height - 1)
-    
+
     events.append((x, y))
 
 holes = events[:num_holes]
@@ -91,6 +91,8 @@ up = (-1, 0)
 down = (1, 0)
 left = (0, -1)
 right = (0, 1)
+
+
 class Agent:
     def __init__(self):
         # originally was a standalone class, but this solution seems simpler
@@ -151,7 +153,7 @@ class Agent:
         print("shooting direction", diretction)
         if self.arrows > 0:
             self.arrows -= 1
-            for i in range(world_height):
+            for i in range(world_height - 1):
                 target = self.posAfterMove(times(i, diretction))
                 if world[target] == 2:
                     world[target] = 6
@@ -216,26 +218,25 @@ class Agent:
                 elif d == 1 and 2 not in data:
                     if self.lookUp(pos) == 2:
                         self.writeDown(pos, -1)
-                elif d==2 and 1 not in data:
+                elif d == 2 and 1 not in data:
                     if self.lookUp(pos) == 1:
                         self.writeDown(pos, -1)
                 elif self.lookUp(pos) == 0:
                     self.writeDown(pos, d + 3)
                     continue
-                
+
         # make some conclusions if possible
         all_visited_twice = True
         for move in self.getSafeMoves():
-            if self.visited[self.posAfterMove(move)]<2:
+            if self.visited[self.posAfterMove(move)] < 2:
                 all_visited_twice = False
         if 2 in data and all_visited_twice:
             dir = random.choice(self.getUnsafeMoves())
             sensor = self.shootDir(dir)
             if sensor == "scream":
-                self.wumpus_dead == True
-                for i in range(world_width-1):
-                    self.writeDown(self.posAfterMove(times(i,dir)), 7)
-
+                self.wumpus_dead = True
+                for i in range(world_width - 1):
+                    self.writeDown(self.posAfterMove(times(i, dir)), 7)
 
     def isSafeMove(self, move):
         new_pos = self.pos[0] + move[0], self.pos[1] + move[1]
@@ -267,7 +268,6 @@ class Agent:
         if self.isSafeMove(right):
             safe_moves.append(right)
         return safe_moves
-
 
     def posAfterMove(self, move):
         return self.pos[0] + move[0], self.pos[1] + move[1]
@@ -317,4 +317,3 @@ if __name__ == "__main__":
             g.pygame.time.delay(250)
             g.drawWinner()
             break
-    
