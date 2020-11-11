@@ -22,9 +22,12 @@ for i in range(number_of_events):
     y = random.randint(0, world_height - 1)
     if x == 0:
         y = random.randint(1, world_height - 1)
-    if (x, y) in events:
-        number_of_events += 1
-        continue
+    while (x,y) in events:
+        x = random.randint(0, world_height - 1)
+        y = random.randint(0, world_height - 1)
+        if x == 0:
+            y = random.randint(1, world_height - 1)
+    
     events.append((x, y))
 
 holes = events[:num_holes]
@@ -34,14 +37,13 @@ monster = events[num_holes + num_gold:]
 
 def place_event(world, locations, number):
     for coord in locations:
-        i, j = coord
-        world[i, j] = number
+        world[coord] = number
     return world
 
 
 world = place_event(world, holes, 1)
-world = place_event(world, monster, 2)
 world = place_event(world, gold, 3)
+world = place_event(world, monster, 2)
 
 '''def get_knowledge(world, knowledge_base, pos_i, pos_j):
     location_knowledge = ""
@@ -72,6 +74,8 @@ world = place_event(world, gold, 3)
 # 4 - may be a hole
 # 2 - monster
 # 5 - may be a monster
+# 6 - dead monster
+# 7 - can't be a monster
 # 3 - gold
 # 12 - both dangers
 # 8 - agent
@@ -130,24 +134,27 @@ class Agent:
         return
 
     def shoot(self, target):
+        print("shooting target", target)
         if target == self.pos:
             print("i feel you")
         elif self.arrows > 0:
+            self.points -= 1
             self.arrows -= 1
             if world[target] == 2:
-                world[target] = 0
+                world[target] = 6
                 return "scream"
             return "klank"
         else:
             return "no arrows"
 
     def shootDir(self, dir):
+        print("shooting direction", dir)
         if self.arrows > 0:
             self.arrows -= 1
             for i in range(world_height):
                 target = self.posAfterMove(times(i, dir))
                 if world[target] == 2:
-                    world[target] = 0
+                    world[target] = 6
                     return "scream"
             return "klank"
         else:
@@ -184,13 +191,13 @@ class Agent:
             if world[pos] != 0:
                 if world[pos] != 3:
                     sensor_vals.append(world[pos])
-        if world[self.pos] == 3:
-            sensor_vals.append(3)
+        if world[self.pos] == 3 or world[self.pos] == 6:
+            sensor_vals.append(world[self.pos])
         return sensor_vals
 
     def writeSensorData(self, data):
         near_pos = self.getNearPos()
-        if len(data) < 1:
+        if (2 not in data or 6 in data) and 1 not in data:
             for pos in near_pos:
                 self.writeDown(pos, -1)
 
@@ -203,17 +210,32 @@ class Agent:
             for pos in near_pos:
                 if self.lookUp(pos) < 0 or self.lookUp(pos) == d + 3:
                     continue
+                elif d == 2 and self.lookUp(pos) == 7 and 1 not in data:
+                    self.writeDown(pos, -1)
+                    continue
+                elif d == 1 and 2 not in data:
+                    if self.lookUp(pos) == 2:
+                        self.writeDown(pos, -1)
+                elif d==2 and 1 not in data:
+                    if self.lookUp(pos) == 1:
+                        self.writeDown(pos, -1)
                 elif self.lookUp(pos) == 0:
                     self.writeDown(pos, d + 3)
                     continue
                 
         # make some conclusions if possible
-        if len(self.getSafeMoves()) == 0:
-            target = random.choice(self.getNearPos())
-            if self.shoot(target) == "scream":
-                self.wumpus_dead = True
-                world[target] = 0
-                self.writeDown(target, -1)
+        all_visited_twice = True
+        for move in self.getSafeMoves():
+            if self.visited[self.posAfterMove(move)]<2:
+                all_visited_twice = False
+        if 2 in data and all_visited_twice:
+            dir = random.choice(self.getUnsafeMoves())
+            sensor = self.shootDir(dir)
+            if sensor == "scream":
+                self.wumpus_dead == True
+                for i in range(world_width-1):
+                    self.writeDown(self.posAfterMove(times(i,dir)), 7)
+
 
     def isSafeMove(self, move):
         new_pos = self.pos[0] + move[0], self.pos[1] + move[1]
@@ -221,6 +243,18 @@ class Agent:
             if self.lookUp(new_pos) < 0 or self.lookUp(new_pos) == 3:
                 return True
         return False
+
+    def getUnsafeMoves(self):
+        res = list()
+        if not self.isSafeMove(up):
+            res.append(up)
+        if not self.isSafeMove(down):
+            res.append(down)
+        if not self.isSafeMove (left):
+            res.append(left)
+        if not self.isSafeMove(right):
+            res.append(right)
+        return res
 
     def getSafeMoves(self):
         safe_moves = list()
@@ -233,6 +267,7 @@ class Agent:
         if self.isSafeMove(right):
             safe_moves.append(right)
         return safe_moves
+
 
     def posAfterMove(self, move):
         return self.pos[0] + move[0], self.pos[1] + move[1]
@@ -250,9 +285,13 @@ class Agent:
 
 if __name__ == "__main__":
     dude = Agent()
-    dude.writeSensorData(dude.getSensorData())
-    g.drawWorld(world, dude.wumpus_dead, dude)
+    
     print(world)
+    g.drawWorld(world, dude)
+    g.pygame.time.delay(500)
+
+    dude.writeSensorData(dude.getSensorData())
+
     if len(dude.getSafeMoves()) == 0:
         g.pygame.time.delay(250)
         g.drawNoWay()
@@ -262,16 +301,18 @@ if __name__ == "__main__":
             g.drawGameOver()
             break
         dude.writeSensorData(dude.getSensorData())
-        g.drawWorld(world, dude.wumpus_dead, dude)
+        g.drawWorld(world, dude)
+        g.pygame.time.delay(250)
+        g.drawWorld(world, dude)
         print(world)
-        if dude.points < -20:
+        if dude.points < -32:
             g.drawNoWay()
             break
         if dude.shouldDig():
             dude.digGold()
             print(world)
             print(dude.points)
-            g.pygame.time.delay(60)
+            g.pygame.time.delay(250)
             g.drawWinner()
             break
     

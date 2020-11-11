@@ -22,6 +22,9 @@ GOLD_SIZE = 170
 WUMPUS = ()
 WUMPUS_SIZE = 170
 
+DEAD_WUMPUS = ()
+DEAD_WUMPUS_SIZE = 170
+
 AGENT = ()
 AGENT_SIZE = 170
 
@@ -66,9 +69,12 @@ def initMap(world, dude):
             if world[i, j] == 2:
                 global WUMPUS
                 WUMPUS = (i, j)
+            if world[i, j] == 6:
+                global DEAD_WUMPUS
+                DEAD_WUMPUS = (i, j)
 
 
-def drawWorld(outer_world, creeper_dead, dude):
+def drawWorld(outer_world, dude):
 
     initMap(outer_world, dude)
     # Set up the drawing window
@@ -113,24 +119,24 @@ def drawWorld(outer_world, creeper_dead, dude):
                                       int(i[0] * SQUARES_WIDTH + WALL_WIDTH + (SQUARES_WIDTH - HOLE_SIZE) / 2)))
 
         # creeper
-        if not creeper_dead:
+        if 2 in outer_world:
             screen.blit(scaled_creeper, (int(WUMPUS[1] * SQUARES_WIDTH + WALL_WIDTH
                                              + (SQUARES_WIDTH - WUMPUS_SIZE) / 2),
                                          int(WUMPUS[0] * SQUARES_WIDTH + WALL_WIDTH
                                              + (SQUARES_WIDTH - WUMPUS_SIZE) / 2)))
 
         # dead creeper
-        if creeper_dead:
-            screen.blit(scaled_dead_creeper, (int(WUMPUS[1] * SQUARES_WIDTH + WALL_WIDTH +
+        if 6 in outer_world:
+            screen.blit(scaled_dead_creeper, (int(DEAD_WUMPUS[1] * SQUARES_WIDTH + WALL_WIDTH +
                                                   (SQUARES_WIDTH - WUMPUS_SIZE) / 2),
-                                              int(WUMPUS[0] * SQUARES_WIDTH + WALL_WIDTH
+                                              int(DEAD_WUMPUS[0] * SQUARES_WIDTH + WALL_WIDTH
                                                   + (SQUARES_WIDTH - WUMPUS_SIZE) / 2)))
 
         # agent(Steve)
         screen.blit(scaled_steve, (int(AGENT[1] * SQUARES_WIDTH + WALL_WIDTH + (SQUARES_WIDTH - AGENT_SIZE) / 2),
                                    int(AGENT[0] * SQUARES_WIDTH + WALL_WIDTH + (SQUARES_WIDTH - AGENT_SIZE) / 2)))
 
-        pygame.time.delay(500)
+        pygame.time.delay(300)
         pygame.display.flip()
 
 
