@@ -147,12 +147,12 @@ class Agent:
         else:
             return "no arrows"
 
-    def shootDir(self, dir):
-        print("shooting direction", dir)
+    def shootDir(self, diretction):
+        print("shooting direction", diretction)
         if self.arrows > 0:
             self.arrows -= 1
             for i in range(world_height):
-                target = self.posAfterMove(times(i, dir))
+                target = self.posAfterMove(times(i, diretction))
                 if world[target] == 2:
                     world[target] = 6
                     return "scream"
@@ -246,13 +246,13 @@ class Agent:
 
     def getUnsafeMoves(self):
         res = list()
-        if not self.isSafeMove(up):
+        if not self.isSafeMove(up) and validPos(world, self.posAfterMove(up)):
             res.append(up)
-        if not self.isSafeMove(down):
+        if not self.isSafeMove(down) and validPos(world, self.posAfterMove(down)):
             res.append(down)
-        if not self.isSafeMove (left):
+        if not self.isSafeMove(left) and validPos(world, self.posAfterMove(left)):
             res.append(left)
-        if not self.isSafeMove(right):
+        if not self.isSafeMove(right) and validPos(world, self.posAfterMove(right)):
             res.append(right)
         return res
 
@@ -285,7 +285,7 @@ class Agent:
 
 if __name__ == "__main__":
     dude = Agent()
-    
+
     print(world)
     g.drawWorld(world, dude)
     g.pygame.time.delay(500)
@@ -303,9 +303,11 @@ if __name__ == "__main__":
         dude.writeSensorData(dude.getSensorData())
         g.drawWorld(world, dude)
         g.pygame.time.delay(250)
-        g.drawWorld(world, dude)
         print(world)
-        if dude.points < -32:
+        if dude.points < -32 and not dude.wumpus_dead:
+            g.drawNoWay()
+            break
+        if dude.points < -64:
             g.drawNoWay()
             break
         if dude.shouldDig():
