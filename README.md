@@ -1,1 +1,2 @@
-# Lab7AI
+# 
+Game of Wampus
